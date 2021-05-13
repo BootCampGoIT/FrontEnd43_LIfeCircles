@@ -9,6 +9,31 @@ class Admin extends Component {
   state = {
     cars: [],
     filter: "",
+    isOpen: false,
+    isDublicate: false,
+  };
+
+  componentWillMount() {
+    const cars = JSON.parse(localStorage.getItem("cars"));
+    cars && this.setState({ cars: cars });
+  }
+  
+  // componentDidMount() {
+  //   const cars = JSON.parse(localStorage.getItem("cars"));
+  //   cars && this.setState({ cars: cars });
+  // }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return !this.state.isDublicate;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    localStorage.setItem("cars", JSON.stringify(this.state.cars));
+  }
+
+  checkDublicate = (brand) => {
+    const result = this.state.cars.find((car) => car.brand === brand);
+    this.setState({ isDublicate: result });
   };
 
   addCar = async (car) => {
@@ -29,10 +54,23 @@ class Admin extends Component {
     );
   };
 
+  toggleForm = () => {
+    this.setState((prev) => ({ isOpen: !prev.isOpen }));
+  };
+
   render() {
     return (
       <>
-        <AdminForm addCar={this.addCar} />
+        <button type='button' onClick={this.toggleForm}>
+          {this.state.isOpen ? "UnMount" : "Mount"}
+        </button>
+        {this.state.isOpen && (
+          <AdminForm
+            addCar={this.addCar}
+            isDublicate={this.state.isDublicate}
+            checkDublicate={this.checkDublicate}
+          />
+        )}
         <Filter setFilter={this.setFilter} value={this.state.filter} />
         <AdminList cars={this.getFilteredCars()} />
       </>

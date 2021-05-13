@@ -14,6 +14,22 @@ const initialState = {
 
 class AdminForm extends Component {
   state = { ...initialState };
+
+  componentDidMount() {
+    const data = JSON.parse(localStorage.getItem("carFormData"));
+    data && this.setState({ ...data });
+  }
+
+
+  componentDidUpdate(prevProps, prevState) {
+    console.log("componentDidUpdate");
+    if (prevState.brand !== this.state.brand) {
+      this.props.checkDublicate(this.state.brand);
+    }
+  }
+  componentWillUnmount() {
+    localStorage.setItem("carFormData", JSON.stringify(this.state));
+  }
   onHandleChange = (e) => {
     const { name, value } = e.target;
     this.setState({ [name]: value });
@@ -24,13 +40,12 @@ class AdminForm extends Component {
     this.setState({ ...initialState });
   };
 
-  getCheckedStatus = (value) => {
-    return this.state.colors.includes(value);
+  getCheckedStatus = (color) => {
+    return this.state.colors.includes(color);
   };
 
   onChecked = (e) => {
-    console.log("e.target :>> ", e.target);
-    console.log("e.target.checked :>> ", e.target.checked);
+    console.dir(e.target);
     if (!e.target.checked) {
       this.setState((prev) => ({
         colors: [...prev.colors.filter((item) => item !== e.target.value)],
@@ -52,6 +67,12 @@ class AdminForm extends Component {
             name='brand'
             onChange={this.onHandleChange}
           />
+          {this.props.isDublicate && (
+            <span
+              style={{
+                color: "red",
+              }}>{`${this.props.isDublicate.brand} already exist!!!`}</span>
+          )}
         </label>
 
         <label>
@@ -80,7 +101,7 @@ class AdminForm extends Component {
         <label>
           Colors:
           <ul>
-            {colors.map((color) => (
+            {["white", "grey", "green", "red"].map((color) => (
               <li style={{ display: "flex", alignItems: "center" }} key={color}>
                 <div
                   style={{
@@ -92,8 +113,8 @@ class AdminForm extends Component {
                   }}></div>
                 <input
                   type='checkBox'
-                  value={color}
-                  checked={this.getCheckedStatus(color)}
+                  value={color} //"white"
+                  checked={this.state.colors.includes(color)} //true || false
                   style={{ width: "30px" }}
                   onChange={this.onChecked}
                 />

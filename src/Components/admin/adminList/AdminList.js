@@ -8,7 +8,7 @@ const AdminList = ({ cars }) => {
       {cars.length ? (
         <ListContainer>
           {cars.map((car) => (
-            <li className='listItem'>
+            <li className='listItem' key={car.id}>
               <h3>{car.brand}</h3>
               <p>Model: {car.model}</p>
               <p>Year: {car.year}</p>
